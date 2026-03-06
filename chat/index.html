@@ -1739,7 +1739,7 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="mobile-sidebar" id="mobileSidebar">
     <div class="mobile-sidebar-header">
-      <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="Ekatva" class="logo">
+      <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo">
       <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
     </div>
     <button class="new-chat-btn" id="mobileNewChat"><i class="fas fa-plus"></i> New chat</button>
@@ -1808,7 +1808,7 @@
         <button class="mobile-menu-icon" id="openMobileMenu">
           <i class="fas fa-ellipsis-v"></i>
         </button>
-        <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo" style="height: 22px;">
+        <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="Ekatva" class="logo" style="height: 22px;">
         
         <div class="guest-controls" id="guestControls" style="display: none;">
           <button class="guest-signin-btn" id="guestSignInBtn">Sign in</button>
@@ -1827,7 +1827,7 @@
           </div>
         </div>
         <div class="thinking-indicator">
-          <span class="thinking-text">Thinking</span>
+          <span class="thinking-text">Thinking...</span>
           <div class="typing-animation">
             <span></span>
             <span></span>
@@ -1841,7 +1841,7 @@
       </div>
 
       <div id="guestPrompt" class="guest-prompt" style="display: none;">
-        <span>✨ You're in guest mode</span>
+        <span> You're in guest mode, Sign In for better expperience! </span>
         <button id="signInRedirectBtn">Sign in</button>
       </div>
 
@@ -3029,7 +3029,6 @@ fetch(NETLIFY_FUNCTION_URL)
       },
       body: JSON.stringify({ 
         message: enhanced
-        // Note: userId is not needed - your Netlify function doesn't use it
       }),
       signal: abortController.signal
     });
@@ -3055,8 +3054,158 @@ fetch(NETLIFY_FUNCTION_URL)
     const reply = data.reply || "I'm not sure how to respond to that.";
 
     setThinking(false);
-    renderMessage(reply, 'ai', true, true);
-    wrapTables();
+    
+    // TYPING ANIMATION - Create message with typing effect
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', 'ai');
+    
+    const avatarDiv = document.createElement('div');
+    avatarDiv.classList.add('message-avatar');
+    avatarDiv.innerHTML = `
+      <div class="ai-avatar-svg">
+        <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="AI">
+      </div>
+    `;
+    msgDiv.appendChild(avatarDiv);
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.classList.add('message-content');
+    
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.id = 'typing-message-bubble';
+    contentDiv.appendChild(bubble);
+    msgDiv.appendChild(contentDiv);
+    chatContainer.appendChild(msgDiv);
+    
+    // Add cursor element
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    bubble.appendChild(cursor);
+    
+    // Type the message word by word
+    const words = reply.split(' ');
+    let currentText = '';
+    let wordIndex = 0;
+    
+    const typeInterval = setInterval(() => {
+      if (wordIndex < words.length) {
+        // Remove cursor temporarily
+        cursor.remove();
+        
+        // Add next word
+        currentText += (wordIndex === 0 ? '' : ' ') + words[wordIndex];
+        
+        // Parse and set HTML if markdown
+        try {
+          let html = marked.parse(currentText);
+          html = DOMPurify.sanitize(html);
+          bubble.innerHTML = html;
+        } catch (e) {
+          bubble.textContent = currentText;
+        }
+        
+        // Add cursor back
+        bubble.appendChild(cursor);
+        
+        // Scroll to bottom
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        wordIndex++;
+      } else {
+        clearInterval(typeInterval);
+        cursor.remove();
+        
+        // Final render with full text and proper formatting
+        try {
+          let html = marked.parse(reply);
+          html = DOMPurify.sanitize(html);
+          bubble.innerHTML = html;
+        } catch (e) {
+          bubble.textContent = reply;
+        }
+        
+        // Add action buttons directly without helper function
+        const actionsDiv = document.createElement('div');
+        actionsDiv.classList.add('message-actions');
+        actionsDiv.innerHTML = `
+          <button class="action-icon copy-btn" title="Copy"><i class="far fa-copy"></i></button>
+          <button class="action-icon like-btn" title="Like"><i class="far fa-thumbs-up"></i></button>
+          <button class="action-icon dislike-btn" title="Dislike"><i class="far fa-thumbs-down"></i></button>
+        `;
+        contentDiv.appendChild(actionsDiv);
+
+        // Copy button functionality
+        const copyBtn = actionsDiv.querySelector('.copy-btn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(reply);
+            const icon = copyBtn.querySelector('i');
+            icon.className = 'fas fa-check';
+            setTimeout(() => icon.className = 'far fa-copy', 2000);
+          });
+        }
+
+        // Like/Dislike buttons
+        const likeBtn = actionsDiv.querySelector('.like-btn');
+        const dislikeBtn = actionsDiv.querySelector('.dislike-btn');
+        
+        likeBtn.addEventListener('click', () => {
+          if (dislikeBtn.classList.contains('disliked')) {
+            dislikeBtn.classList.remove('disliked');
+          }
+          likeBtn.classList.toggle('liked');
+        });
+        
+        dislikeBtn.addEventListener('click', () => {
+          if (likeBtn.classList.contains('liked')) {
+            likeBtn.classList.remove('liked');
+          }
+          dislikeBtn.classList.toggle('disliked');
+        });
+        
+        // Apply syntax highlighting
+        bubble.querySelectorAll('pre code').forEach((block) => {
+          hljs.highlightElement(block);
+          
+          const pre = block.parentElement;
+          const header = document.createElement('div');
+          header.className = 'code-header';
+          header.innerHTML = '<button class="copy-code-btn"><i class="far fa-copy"></i> Copy Code</button>';
+          pre.parentNode.insertBefore(header, pre);
+          
+          header.querySelector('.copy-code-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(block.textContent);
+            const btn = header.querySelector('.copy-code-btn');
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+              btn.innerHTML = '<i class="far fa-copy"></i> Copy Code';
+            }, 2000);
+          });
+        });
+        
+        wrapTables();
+        
+        // Save to database
+        if (currentUser && currentChatId && !currentChatId.startsWith('guest')) {
+          db.collection('chats').doc(currentChatId).collection('messages').add({
+            text: reply,
+            sender: 'ai',
+            useMarkdown: true,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(() => {
+            return db.collection('chats').doc(currentChatId).update({
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }).catch(e => console.error('Error saving message:', e));
+        } else if (currentChatId?.startsWith('guest')) {
+          const stored = localStorage.getItem(`guest_chat_${currentChatId}`);
+          const messages = stored ? JSON.parse(stored) : [];
+          messages.push({ text: reply, sender: 'ai', useMarkdown: true, timestamp: Date.now() });
+          localStorage.setItem(`guest_chat_${currentChatId}`, JSON.stringify(messages));
+        }
+      }
+    }, 40); // 40ms between words for smooth typing
     
     if (currentUser && currentChatId && !currentChatId.startsWith('guest') && isFirstMessage) {
       const title = messageText.split(' ').slice(0, 5).join(' ') + '...';
