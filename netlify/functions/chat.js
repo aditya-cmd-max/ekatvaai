@@ -74,7 +74,7 @@ export const handler = async (event, context) => {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${key}`,
-        "HTTP-Referer": "https://aditya-cmd-max.github.io/ekatva/",
+        "HTTP-Referer": "https://aditya-cmd-max.github.io/ekatva/chat",
         "X-Title": "Ekatva AI"
       },
       body: JSON.stringify(requestBody)
