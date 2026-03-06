@@ -69,26 +69,26 @@
       --code-number: #BD93F9;
     }
 
-    /* LIGHT THEME - Very subtle pink tint (barely visible) */
+    /* LIGHT THEME - Very subtle pink tint */
     html.light-theme {
       --bg-surface: #FFF9FA;
       --bg-surface-raised: #FFFFFF;
       --bg-surface-higher: #FFF5F7;
-      --bg-sidebar: #1A1A1A;
-      --bg-sidebar-raised: #222222;
+      --bg-sidebar: #F5F5F5; /* Light gray sidebar */
+      --bg-sidebar-raised: #FFFFFF;
       --text-primary: #000000;
       --text-secondary: #333333;
       --text-tertiary: #666666;
       --border-subtle: #FFE4E8;
       --border-strong: #FFD0D6;
-      --accent-primary: #FF9500; /* Same orange color */
+      --accent-primary: #FF9500; /* Same orange */
       --accent-hover: #FFA726;
       --accent-soft: rgba(255, 149, 0, 0.1);
-      --shadow-xs: 0 2px 4px rgba(255,105,180,0.03);
-      --shadow-sm: 0 4px 8px rgba(255,105,180,0.04);
-      --shadow-md: 0 8px 16px rgba(255,105,180,0.05);
-      --shadow-lg: 0 12px 24px rgba(255,105,180,0.06);
-      --shadow-xl: 0 20px 40px rgba(255,105,180,0.07);
+      --shadow-xs: 0 2px 4px rgba(0,0,0,0.02);
+      --shadow-sm: 0 4px 8px rgba(0,0,0,0.03);
+      --shadow-md: 0 8px 16px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 24px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 40px rgba(0,0,0,0.06);
       --gradient-ai: linear-gradient(135deg, #FF9500, #FF6B6B);
       --code-bg: #F5F0F2;
       --code-text: #2D1B2D;
@@ -110,6 +110,22 @@
       color: var(--text-primary);
       line-height: 1.6;
       transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Logo color changes with theme */
+    .logo {
+      height: 26px;
+      width: auto;
+      filter: brightness(0) invert(1); /* White in dark mode */
+      transition: filter 0.3s ease;
+    }
+    html.light-theme .logo {
+      filter: brightness(0) invert(0); /* Black in light mode */
+    }
+
+    /* Sidebar logo in light mode */
+    html.light-theme .sidebar .logo {
+      filter: brightness(0) invert(0); /* Black in light mode sidebar */
     }
 
     /* Custom Scrollbar */
@@ -170,16 +186,6 @@
       display: flex;
       align-items: center;
       gap: 12px;
-    }
-
-    .logo {
-      height: 26px;
-      width: auto;
-      filter: brightness(0) invert(1);
-      transition: filter 0.3s ease;
-    }
-    html.light-theme .logo {
-      filter: brightness(0) invert(1); /* Keep white in sidebar */
     }
 
     .new-chat-btn {
@@ -510,7 +516,7 @@
       border-color: var(--accent-primary);
     }
 
-    /* Guest Theme Toggle and Sign In */
+    /* Guest Controls */
     .guest-controls {
       margin-left: auto;
       display: flex;
@@ -599,7 +605,7 @@
       font-size: 16px;
     }
 
-    /* Messages - User on RIGHT */
+    /* Messages - User on LEFT */
     .message {
       display: flex;
       margin-bottom: 28px;
@@ -618,8 +624,8 @@
       }
     }
     .message.user {
-      margin-left: auto;
-      justify-content: flex-end;
+      margin-left: 0; /* Align to left */
+      justify-content: flex-start;
     }
     .message.ai {
       margin-right: auto;
@@ -667,12 +673,12 @@
       min-width: 0;
     }
 
-    /* Message Bubble - User on right */
+    /* Message Bubble - User on LEFT */
     .message.user .bubble {
       background: var(--accent-primary);
       color: white;
       padding: 12px 18px;
-      border-radius: 24px 24px 6px 24px;
+      border-radius: 24px 24px 24px 6px; /* Changed to left-side tail */
       font-size: 15px;
       line-height: 1.6;
       box-shadow: var(--shadow-sm);
@@ -1712,7 +1718,7 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="mobile-sidebar" id="mobileSidebar">
     <div class="mobile-sidebar-header">
-      <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo" style="height: 26px;">
+      <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo">
       <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
     </div>
     <button class="new-chat-btn" id="mobileNewChat"><i class="fas fa-plus"></i> New chat</button>
@@ -1737,7 +1743,7 @@
     <!-- Desktop Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo" style="height: 26px;">
+        <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo">
       </div>
 
       <button class="new-chat-btn" id="newChatBtn"><i class="fas fa-plus"></i> New chat</button>
@@ -2836,10 +2842,10 @@
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('message', sender);
         
-        const avatarDiv = document.createElement('div');
-        avatarDiv.classList.add('message-avatar');
-        
+        // Only AI gets avatar
         if (sender === 'ai') {
+          const avatarDiv = document.createElement('div');
+          avatarDiv.classList.add('message-avatar');
           avatarDiv.innerHTML = `
             <div class="ai-avatar-svg">
               <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="AI">
