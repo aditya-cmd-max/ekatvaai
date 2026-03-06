@@ -1,5 +1,7 @@
+// Load the training data
+const { buildSystemPrompt } = require('https://aditya-cmd-max.github.io/ekatvaai/chat/ai-training-data.js'); // Adjust path as needed
+
 export const handler = async (event, context) => {
-  // 1. Handle CORS (Netlify handles most, but this mirrors your worker)
   const headers = {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
@@ -11,7 +13,6 @@ export const handler = async (event, context) => {
     return { statusCode: 204, headers };
   }
 
-  // 2. Quick alive check
   if (event.httpMethod === "GET") {
     return {
       statusCode: 200,
@@ -20,7 +21,6 @@ export const handler = async (event, context) => {
     };
   }
 
-  // 3. Must be POST & valid JSON
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method Not Allowed" }) };
   }
@@ -37,7 +37,12 @@ export const handler = async (event, context) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: "No message provided" }) };
   }
 
-  // Timeout helper
+  // Detect user's technical level from message (simple heuristic)
+  const techLevel = detectTechnicalLevel(userMessage);
+  
+  // Build dynamic system prompt with user context
+  const systemPrompt = buildSystemPrompt('', { techLevel });
+
   const fetchWithTimeout = async (url, options, timeout = 8000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
@@ -48,26 +53,27 @@ export const handler = async (event, context) => {
     }
   };
 
-  // API Keys from Netlify Environment Variables
   const apiKeys = [
     { key: process.env.OPENAI_API_KEY, name: "Key 1" },
     { key: process.env.OPENAI_API_KEY2, name: "Key 2" },
     { key: process.env.OPENAI_API_KEY3, name: "Key 3" },
     { key: process.env.OPENAI_API_KEY4, name: "Key 4" }
-  ].filter(item => item.key); // Only use keys that are actually set
+  ].filter(item => item.key);
 
   const requestBody = {
     model: "openrouter/free",
     messages: [
-      { role: "system", content: "You are Ekatva AI created by Reverbit. Keep responses concise." },
+      { 
+        role: "system", 
+        content: systemPrompt  // <-- USING THE TRAINING DATA
+      },
       { role: "user", content: userMessage }
     ],
     temperature: 0.7,
-    max_tokens: 200,
+    max_tokens: 500, // Increased for more detailed responses
     stream: false
   };
 
-  // Logic: Try APIs in parallel (Race)
   const apiPromises = apiKeys.map(({ key, name }) => 
     fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -87,7 +93,7 @@ export const handler = async (event, context) => {
   );
 
   try {
-    const result = await Promise.any(apiPromises); // Promise.any is better for "first success"
+    const result = await Promise.any(apiPromises);
     return {
       statusCode: 200,
       headers,
@@ -101,3 +107,27 @@ export const handler = async (event, context) => {
     };
   }
 };
+
+// Helper function to detect technical level
+function detectTechnicalLevel(message) {
+  const lowerMsg = message.toLowerCase();
+  
+  // Advanced indicators
+  if (lowerMsg.includes('architecture') || 
+      lowerMsg.includes('performance optimization') ||
+      lowerMsg.includes('design pattern') ||
+      lowerMsg.includes('scalability')) {
+    return 'advanced';
+  }
+  
+  // Intermediate indicators
+  if (lowerMsg.includes('how to implement') ||
+      lowerMsg.includes('best practice') ||
+      lowerMsg.includes('difference between') ||
+      lowerMsg.includes('vs ')) {
+    return 'intermediate';
+  }
+  
+  // Default to beginner
+  return 'beginner';
+}
