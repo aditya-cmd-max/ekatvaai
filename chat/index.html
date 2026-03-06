@@ -1151,36 +1151,96 @@
       cursor: not-allowed;
     }
 
-    .send-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-full);
-      border: none;
-      background: var(--accent-primary);
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: var(--shadow-sm);
-      flex-shrink: 0;
-    }
-    .send-btn:hover:not(:disabled) {
-      background: var(--accent-hover);
-      transform: scale(1.05);
-    }
-    .send-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .send-btn.stop {
-      background: #F44336;
-    }
-    .send-btn.stop:hover {
-      background: #D32F2F;
-    }
+    /* Typing animation for AI responses */
+.typing-message {
+  display: inline-block;
+  opacity: 0;
+  animation: fadeInWords 0.02s forwards;
+}
+
+@keyframes fadeInWords {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 18px;
+  background-color: var(--accent-primary);
+  margin-left: 2px;
+  animation: cursorBlink 1s infinite;
+  vertical-align: middle;
+}
+
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.send-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--accent-primary);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: border-radius 0.3s ease, transform 0.2s ease, background 0.2s ease, width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+/* Morph on hover - from circle to curved square */
+.send-btn:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  transform: scale(1.02);
+}
+
+.send-btn:active {
+  border-radius: 12px;
+  transform: scale(0.95);
+  width: 46px;
+  height: 46px;
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-radius: var(--radius-full);
+  width: 48px;
+  height: 48px;
+}
+
+/* Stop button state - already morphed */
+.send-btn.stop {
+  background: #F44336;
+  border-radius: 16px !important;
+  width: 48px;
+  height: 48px;
+}
+
+.send-btn.stop:hover {
+  background: #D32F2F;
+  border-radius: 12px !important;
+  width: 48px;
+  height: 48px;
+}
+
+
 
     .file-preview {
       display: flex;
@@ -1679,7 +1739,7 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="mobile-sidebar" id="mobileSidebar">
     <div class="mobile-sidebar-header">
-      <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo">
+      <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="Ekatva" class="logo">
       <button class="close-sidebar" id="closeSidebar"><i class="fas fa-times"></i></button>
     </div>
     <button class="new-chat-btn" id="mobileNewChat"><i class="fas fa-plus"></i> New chat</button>
@@ -1702,7 +1762,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo">
+        <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="Ekatva" class="logo">
       </div>
 
       <button class="new-chat-btn" id="newChatBtn"><i class="fas fa-plus"></i> New chat</button>
