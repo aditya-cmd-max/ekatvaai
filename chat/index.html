@@ -2932,87 +2932,99 @@ fetch(NETLIFY_FUNCTION_URL)
       }
 
       async function processSend(messageText) {
-        userInput.value = '';
-        
-        if (chatContainer.querySelector('.welcome-screen')) {
-          chatContainer.innerHTML = '';
-        }
-        
-        renderMessage(messageText, 'user', false, true);
-        
-        isWaitingForResponse = true;
-        userInput.disabled = true;
-        sendBtn.classList.add('stop');
-        sendBtn.innerHTML = '<i class="fas fa-stop"></i>';
-        setThinking(true);
+  userInput.value = '';
+  
+  if (chatContainer.querySelector('.welcome-screen')) {
+    chatContainer.innerHTML = '';
+  }
+  
+  renderMessage(messageText, 'user', false, true);
+  
+  isWaitingForResponse = true;
+  userInput.disabled = true;
+  sendBtn.classList.add('stop');
+  sendBtn.innerHTML = '<i class="fas fa-stop"></i>';
+  setThinking(true);
 
-        try {
-          const toolsActive = Object.entries(activeTools)
-            .filter(([,v]) => v)
-            .map(([k]) => k)
-            .join(',');
-          
-          let enhanced = messageText;
-          if (toolsActive) enhanced += `\n[Enable tools: ${toolsActive}]`;
+  try {
+    const toolsActive = Object.entries(activeTools)
+      .filter(([,v]) => v)
+      .map(([k]) => k)
+      .join(',');
+    
+    let enhanced = messageText;
+    if (toolsActive) enhanced += `\n[Enable tools: ${toolsActive}]`;
 
-          abortController = new AbortController();
-          const timeout = setTimeout(() => abortController.abort(), 30000);
-          
-          // ========== UPDATED FETCH FOR NETLIFY ==========
-          const res = await fetch(NETLIFY_FUNCTION_URL, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'X-User-ID': currentUser?.uid || 'guest'
-            },
-            body: JSON.stringify({ 
-              message: enhanced
-              // userId removed - Netlify function doesn't need it
-            }),
-            signal: abortController.signal
-          });
-          
-          clearTimeout(timeout);
-          
-          if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            throw new Error(errorData.error || `Server error: ${res.status}`);
-          }
-          
-          const data = await res.json();
-          const reply = data.reply || "I'm not sure how to respond to that.";
-
-          setThinking(false);
-          renderMessage(reply, 'ai', true, true);
-          wrapTables();
-          
-          if (currentUser && currentChatId && !currentChatId.startsWith('guest') && isFirstMessage) {
-            const title = messageText.split(' ').slice(0, 5).join(' ') + '...';
-            await db.collection('chats').doc(currentChatId).update({ title });
-            isFirstMessage = false;
-            await loadChatHistory();
-          }
-        } catch (err) {
-          if (err.name === 'AbortError') {
-            setThinking(false);
-            renderMessage('❌ Response stopped by user.', 'ai', false, true);
-          } else {
-            console.error('Fetch error:', err);
-            setThinking(false);
-            renderMessage(`❌ Error: ${err.message}. Please try again.`, 'ai', false, true);
-          }
-        } finally {
-          isWaitingForResponse = false;
-          userInput.disabled = false;
-          sendBtn.classList.remove('stop');
-          sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-          abortController = null;
-          selectedFile = null;
-          fileInput.value = '';
-          filePreview.style.display = 'none';
-          userInput.focus();
-        }
+    abortController = new AbortController();
+    const timeout = setTimeout(() => abortController.abort(), 30000);
+    
+    console.log('📤 Sending request to:', NETLIFY_FUNCTION_URL);
+    console.log('📦 Request body:', { message: enhanced });
+    
+    const res = await fetch(NETLIFY_FUNCTION_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        message: enhanced
+        // Note: userId is not needed - your Netlify function doesn't use it
+      }),
+      signal: abortController.signal
+    });
+    
+    clearTimeout(timeout);
+    
+    console.log('📥 Response status:', res.status);
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('❌ Error response:', errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        throw new Error(errorData.error || `Server error: ${res.status}`);
+      } catch {
+        throw new Error(`Server error: ${res.status} - ${errorText.substring(0, 100)}`);
       }
+    }
+    
+    const data = await res.json();
+    console.log('✅ Response data:', data);
+    
+    const reply = data.reply || "I'm not sure how to respond to that.";
+
+    setThinking(false);
+    renderMessage(reply, 'ai', true, true);
+    wrapTables();
+    
+    if (currentUser && currentChatId && !currentChatId.startsWith('guest') && isFirstMessage) {
+      const title = messageText.split(' ').slice(0, 5).join(' ') + '...';
+      await db.collection('chats').doc(currentChatId).update({ title });
+      isFirstMessage = false;
+      await loadChatHistory();
+    }
+  } catch (err) {
+    console.error('❌ Fetch error details:', err);
+    if (err.name === 'AbortError') {
+      setThinking(false);
+      renderMessage('❌ Response stopped by user.', 'ai', false, true);
+    } else {
+      setThinking(false);
+      renderMessage(`❌ Error: ${err.message}. Please try again.`, 'ai', false, true);
+    }
+  } finally {
+    isWaitingForResponse = false;
+    userInput.disabled = false;
+    sendBtn.classList.remove('stop');
+    sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    abortController = null;
+    selectedFile = null;
+    fileInput.value = '';
+    filePreview.style.display = 'none';
+    userInput.focus();
+  }
+}
 
       if (sendBtn) {
         sendBtn.addEventListener('click', (e) => {
