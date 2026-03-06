@@ -114,7 +114,7 @@ export const handler = async (event, context) => {
       { role: "user", content: userMessage }
     ],
     temperature: 0.7,
-    max_tokens: 500,
+    max_tokens: 2000,
     stream: false
   };
 
