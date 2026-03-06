@@ -74,14 +74,14 @@
       --bg-surface: #FFF9FA;
       --bg-surface-raised: #FFFFFF;
       --bg-surface-higher: #FFF5F7;
-      --bg-sidebar: #F5F5F5; /* Light gray sidebar */
+      --bg-sidebar: #F5F5F5;
       --bg-sidebar-raised: #FFFFFF;
       --text-primary: #000000;
       --text-secondary: #333333;
       --text-tertiary: #666666;
       --border-subtle: #FFE4E8;
       --border-strong: #FFD0D6;
-      --accent-primary: #FF9500; /* Same orange */
+      --accent-primary: #FF9500;
       --accent-hover: #FFA726;
       --accent-soft: rgba(255, 149, 0, 0.1);
       --shadow-xs: 0 2px 4px rgba(0,0,0,0.02);
@@ -112,23 +112,20 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Logo color changes with theme */
     .logo {
       height: 26px;
       width: auto;
-      filter: brightness(0) invert(1); /* White in dark mode */
+      filter: brightness(0) invert(1);
       transition: filter 0.3s ease;
     }
     html.light-theme .logo {
-      filter: brightness(0) invert(0); /* Black in light mode */
+      filter: brightness(0) invert(0);
     }
 
-    /* Sidebar logo in light mode */
     html.light-theme .sidebar .logo {
-      filter: brightness(0) invert(0); /* Black in light mode sidebar */
+      filter: brightness(0) invert(0);
     }
 
-    /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
       height: 8px;
@@ -144,7 +141,6 @@
       background: var(--text-tertiary);
     }
 
-    /* Code Syntax Highlighting */
     .hljs {
       background: var(--code-bg) !important;
       color: var(--code-text) !important;
@@ -160,7 +156,6 @@
     .hljs-number { color: var(--code-number) !important; }
     .hljs-title { color: var(--code-function) !important; }
 
-    /* ---------- APP LAYOUT ---------- */
     .app {
       display: flex;
       height: 100dvh;
@@ -169,7 +164,6 @@
       width: 100%;
     }
 
-    /* ---------- SIDEBAR ---------- */
     .sidebar {
       width: 300px;
       background: var(--bg-sidebar);
@@ -407,7 +401,6 @@
       color: var(--accent-primary);
     }
 
-    /* ---------- MOBILE SIDEBAR ---------- */
     .mobile-sidebar-toggle {
       display: none;
       width: 44px;
@@ -473,7 +466,6 @@
       flex-shrink: 0;
     }
 
-    /* ---------- MAIN AREA ---------- */
     .main {
       flex: 1;
       display: flex;
@@ -494,7 +486,6 @@
       flex-shrink: 0;
     }
 
-    /* Mobile Menu Icon */
     .mobile-menu-icon {
       display: none;
       width: 44px;
@@ -516,7 +507,6 @@
       border-color: var(--accent-primary);
     }
 
-    /* Guest Controls */
     .guest-controls {
       margin-left: auto;
       display: flex;
@@ -568,7 +558,6 @@
       width: 100%;
     }
 
-    /* Welcome Screen */
     .welcome-screen {
       height: 100%;
       display: flex;
@@ -605,7 +594,6 @@
       font-size: 16px;
     }
 
-    /* Messages - User on LEFT */
     .message {
       display: flex;
       margin-bottom: 28px;
@@ -624,14 +612,13 @@
       }
     }
     .message.user {
-      margin-left: 0; /* Align to left */
+      margin-left: 0;
       justify-content: flex-start;
     }
     .message.ai {
       margin-right: auto;
     }
 
-    /* Only AI has avatar */
     .message-avatar {
       width: 44px;
       height: 44px;
@@ -650,10 +637,9 @@
       align-self: flex-start;
     }
     .message.user .message-avatar {
-      display: none; /* Hide user avatar */
+      display: none;
     }
 
-    /* AI Avatar with external SVG */
     .ai-avatar-svg {
       width: 100%;
       height: 100%;
@@ -673,12 +659,11 @@
       min-width: 0;
     }
 
-    /* Message Bubble - User on LEFT */
     .message.user .bubble {
       background: var(--accent-primary);
       color: white;
       padding: 12px 18px;
-      border-radius: 24px 24px 24px 6px; /* Changed to left-side tail */
+      border-radius: 24px 24px 24px 6px;
       font-size: 15px;
       line-height: 1.6;
       box-shadow: var(--shadow-sm);
@@ -696,7 +681,6 @@
       line-height: 1.7;
     }
 
-    /* Markdown Styling */
     .bubble {
       word-break: break-word;
       overflow-wrap: break-word;
@@ -766,7 +750,6 @@
       white-space: pre;
       min-width: 100%;
     }
-    /* Copy button for code blocks */
     .code-header {
       display: flex;
       justify-content: flex-end;
@@ -792,7 +775,6 @@
       background: var(--accent-primary);
       color: white;
     }
-    /* Enhanced Table Styles */
     .bubble table {
       width: 100%;
       border-collapse: collapse;
@@ -824,7 +806,6 @@
     .bubble table tr:hover td {
       background: var(--accent-soft);
     }
-    /* Table wrapper for horizontal scroll on mobile */
     .table-wrapper {
       overflow-x: auto;
       margin: 20px 0;
@@ -835,7 +816,6 @@
       margin: 0;
       border: none;
     }
-    /* Copy table button */
     .table-header {
       display: flex;
       justify-content: flex-end;
@@ -862,7 +842,6 @@
       color: white;
     }
 
-    /* Message Actions */
     .message-actions {
       display: flex;
       gap: 6px;
@@ -903,7 +882,6 @@
       background: rgba(244, 67, 54, 0.1);
     }
 
-    /* Edit message button for user messages */
     .edit-icon {
       width: 36px;
       height: 36px;
@@ -924,7 +902,6 @@
       border-color: transparent;
     }
 
-    /* Thinking Indicator */
     .thinking-indicator {
       display: flex;
       align-items: center;
@@ -950,7 +927,6 @@
       100% { background-position: 200% center; }
     }
 
-    /* Typing Animation */
     .typing-animation {
       display: inline-flex;
       gap: 4px;
@@ -970,7 +946,6 @@
       30% { transform: translateY(-4px); opacity: 1; }
     }
 
-    /* Back to Bottom - Translucent */
     .back-to-bottom {
       position: absolute;
       bottom: 120px;
@@ -1006,7 +981,6 @@
       transform: translateX(-50%) scale(1.1);
     }
 
-    /* Guest Prompt */
     .guest-prompt {
       position: absolute;
       bottom: 120px;
@@ -1045,7 +1019,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Input Area */
     .input-area {
       padding: 20px 24px 24px;
       background: var(--bg-surface);
@@ -1054,7 +1027,6 @@
       width: 100%;
     }
 
-    /* Active Tools Bar */
     .active-tools {
       display: flex;
       gap: 8px;
@@ -1086,7 +1058,6 @@
       color: white;
     }
 
-    /* Plus Menu */
     .plus-menu-container {
       position: relative;
       display: inline-block;
@@ -1211,7 +1182,6 @@
       background: #D32F2F;
     }
 
-    /* File Preview */
     .file-preview {
       display: flex;
       align-items: center;
@@ -1254,7 +1224,6 @@
       letter-spacing: 0.3px;
     }
 
-    /* Chat Menu */
     .chat-menu {
       position: fixed;
       background: var(--bg-surface-raised);
@@ -1287,7 +1256,6 @@
       color: var(--accent-primary);
     }
 
-    /* Edit Message Modal */
     .edit-message-modal {
       position: fixed;
       top: 50%;
@@ -1325,7 +1293,6 @@
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
 
-    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -1425,7 +1392,6 @@
       transform: translateY(-2px);
     }
 
-    /* Settings - Radio Buttons */
     .settings-option {
       padding: 20px 0;
       border-bottom: 1px solid var(--border-subtle);
@@ -1474,7 +1440,6 @@
       padding: 12px 0;
     }
 
-    /* Profile Modal */
     .profile-header {
       display: flex;
       align-items: center;
@@ -1541,7 +1506,6 @@
       color: var(--accent-primary);
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .sidebar {
         display: none;
@@ -1596,7 +1560,6 @@
   </style>
 </head>
 <body>
-  <!-- Edit Message Modal -->
   <div class="edit-message-modal" id="editMessageModal">
     <h3>Edit Message</h3>
     <textarea id="editMessageText" placeholder="Edit your message..."></textarea>
@@ -1606,7 +1569,6 @@
     </div>
   </div>
 
-  <!-- Modals -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal">
       <div class="profile-header">
@@ -1714,7 +1676,6 @@
     </div>
   </div>
 
-  <!-- Mobile Sidebar -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <div class="mobile-sidebar" id="mobileSidebar">
     <div class="mobile-sidebar-header">
@@ -1738,9 +1699,7 @@
     </div>
   </div>
 
-  <!-- Main App -->
   <div class="app">
-    <!-- Desktop Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo">
@@ -1784,7 +1743,6 @@
       </div>
     </aside>
 
-    <!-- Main Chat Area -->
     <div class="main">
       <div class="navbar">
         <button class="mobile-menu-icon" id="openMobileMenu">
@@ -1792,7 +1750,6 @@
         </button>
         <img src="https://aditya-cmd-max.github.io/Reverbit.svg" alt="Ekatva" class="logo" style="height: 22px;">
         
-        <!-- Guest Controls -->
         <div class="guest-controls" id="guestControls" style="display: none;">
           <button class="guest-signin-btn" id="guestSignInBtn">Sign in</button>
           <div class="guest-theme-toggle" id="guestThemeToggle">
@@ -1803,7 +1760,6 @@
 
       <div id="chatContainer" class="chat-container"></div>
 
-      <!-- Thinking Indicator -->
       <div id="thinkingIndicator" class="message ai" style="display: none;">
         <div class="message-avatar">
           <div class="ai-avatar-svg">
@@ -1820,18 +1776,15 @@
         </div>
       </div>
 
-      <!-- Back to Bottom -->
       <div class="back-to-bottom" id="backToBottom">
         <i class="fas fa-arrow-down"></i>
       </div>
 
-      <!-- Guest Prompt (legacy) -->
       <div id="guestPrompt" class="guest-prompt" style="display: none;">
         <span>✨ You're in guest mode</span>
         <button id="signInRedirectBtn">Sign in</button>
       </div>
 
-      <!-- Input Area -->
       <div class="input-area">
         <div id="filePreview" class="file-preview" style="display: none;">
           <i class="fas fa-file"></i>
@@ -1840,10 +1793,8 @@
           <i class="fas fa-times remove-file" id="removeFile"></i>
         </div>
 
-        <!-- Active Tools -->
         <div class="active-tools" id="activeTools"></div>
 
-        <!-- Plus Menu and Input -->
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
           <div class="plus-menu-container">
             <button class="plus-menu-btn" id="plusMenuBtn">
@@ -1875,19 +1826,17 @@
     </div>
   </div>
 
-  <!-- Chat Menu -->
   <div id="chatMenu" class="chat-menu">
     <div class="chat-menu-item" id="menuPin"><i class="fas fa-thumbtack"></i> Pin chat</div>
     <div class="chat-menu-item" id="menuRename"><i class="fas fa-edit"></i> Rename</div>
     <div class="chat-menu-item" id="menuDelete"><i class="fas fa-trash"></i> Delete</div>
   </div>
 
-  <!-- Hidden File Input -->
   <input type="file" id="fileInput" style="display: none;">
 
   <script>
     (function() {
-      // ========== THEME TOGGLE - FIXED WITH RADIO BUTTONS ==========
+      // ========== THEME TOGGLE ==========
       const html = document.documentElement;
       const themeDark = document.getElementById('themeDark');
       const themeLight = document.getElementById('themeLight');
@@ -1896,10 +1845,8 @@
       const guestSignInBtn = document.getElementById('guestSignInBtn');
       const signInRedirectBtn = document.getElementById('signInRedirectBtn');
 
-      // Load saved theme
       const savedTheme = localStorage.getItem('theme') || 'dark';
       
-      // Apply theme on load
       if (savedTheme === 'light') {
         html.classList.add('light-theme');
         if (themeLight) themeLight.checked = true;
@@ -1912,7 +1859,6 @@
         if (guestThemeIcon) guestThemeIcon.className = 'fas fa-sun';
       }
 
-      // Theme toggle function
       function setTheme(theme) {
         if (theme === 'light') {
           html.classList.add('light-theme');
@@ -1929,7 +1875,6 @@
         }
       }
 
-      // Radio button listeners
       if (themeDark) {
         themeDark.addEventListener('change', () => {
           if (themeDark.checked) setTheme('dark');
@@ -1941,7 +1886,6 @@
         });
       }
 
-      // Guest theme toggle
       if (guestThemeToggle) {
         guestThemeToggle.addEventListener('click', (e) => {
           e.preventDefault();
@@ -1966,8 +1910,13 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      // Worker URL
-      const WORKER_URL = "https://ekatvaai.reverbit1104.workers.dev/";
+      // ========== NETLIFY FUNCTION URL ==========
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const NETLIFY_FUNCTION_URL = isLocalhost 
+        ? 'http://localhost:8888/.netlify/functions/chat'
+        : '/.netlify/functions/chat';
+
+      console.log('Using Netlify function URL:', NETLIFY_FUNCTION_URL);
 
       // Configure marked
       marked.setOptions({
@@ -1996,20 +1945,17 @@
       const closeSidebar = document.getElementById('closeSidebar');
       const activeToolsDiv = document.getElementById('activeTools');
 
-      // Edit Message Modal
       const editModal = document.getElementById('editMessageModal');
       const editMessageText = document.getElementById('editMessageText');
       const cancelEditBtn = document.getElementById('cancelEditBtn');
       const saveEditBtn = document.getElementById('saveEditBtn');
 
-      // Plus Menu Elements
       const plusMenuBtn = document.getElementById('plusMenuBtn');
       const plusMenu = document.getElementById('plusMenu');
       const plusUpload = document.getElementById('plusUpload');
       const plusWebSearch = document.getElementById('plusWebSearch');
       const plusCode = document.getElementById('plusCode');
 
-      // User profile elements
       const desktopUserAvatar = document.getElementById('desktopUserAvatar');
       const desktopUserName = document.getElementById('desktopUserName');
       const desktopUserEmail = document.getElementById('desktopUserEmail');
@@ -2017,14 +1963,12 @@
       const mobileUserName = document.getElementById('mobileUserName');
       const mobileUserEmail = document.getElementById('mobileUserEmail');
 
-      // Input elements
       const fileInput = document.getElementById('fileInput');
       const filePreview = document.getElementById('filePreview');
       const fileNameSpan = document.getElementById('fileName');
       const fileSizeSpan = document.getElementById('fileSize');
       const removeFileBtn = document.getElementById('removeFile');
 
-      // History elements
       const historyList = document.getElementById('historyList');
       const mobileHistoryList = document.getElementById('mobileHistoryList');
       const newChatBtn = document.getElementById('newChatBtn');
@@ -2032,20 +1976,17 @@
       const searchInput = document.getElementById('searchInput');
       const mobileSearchInput = document.getElementById('mobileSearchInput');
 
-      // Chat menu
       const chatMenu = document.getElementById('chatMenu');
       const menuPin = document.getElementById('menuPin');
       const menuRename = document.getElementById('menuRename');
       const menuDelete = document.getElementById('menuDelete');
 
-      // Modal elements
       const profileModal = document.getElementById('profileModal');
       const settingsModal = document.getElementById('settingsModal');
       const deleteConfirmModal = document.getElementById('deleteConfirmModal');
       const renameModal = document.getElementById('renameModal');
       const logoutConfirmModal = document.getElementById('logoutConfirmModal');
 
-      // Profile modal elements
       const profileAvatar = document.getElementById('profileAvatar');
       const profileDisplayName = document.getElementById('profileDisplayName');
       const profileUsername = document.getElementById('profileUsername');
@@ -2058,26 +1999,21 @@
       const profileLogins = document.getElementById('profileLogins');
       const closeProfileBtn = document.getElementById('closeProfileBtn');
 
-      // Settings modal elements
       const notificationsToggle = document.getElementById('notificationsToggle');
       const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
       const saveSettingsBtn = document.getElementById('saveSettingsBtn');
       const deleteAccountBtn = document.getElementById('deleteAccountBtn');
 
-      // Delete confirmation
       const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
       const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-      // Rename modal
       const cancelRenameBtn = document.getElementById('cancelRenameBtn');
       const confirmRenameBtn = document.getElementById('confirmRenameBtn');
       const renameInput = document.getElementById('renameInput');
 
-      // Logout modal
       const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
       const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
 
-      // Dropdown elements
       const userProfileMini = document.getElementById('userProfileMini');
       const mobileUserProfile = document.getElementById('mobileUserProfile');
       const userDropdown = document.getElementById('userDropdown');
@@ -2102,7 +2038,6 @@
       let abortController = null;
       let currentEditingMessage = null;
 
-      // Helper Functions
       function getChatIdFromUrl() {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
@@ -2114,7 +2049,6 @@
         window.history.replaceState({}, '', url);
       }
 
-      // Modal functions
       function showModal(modal) {
         modal.classList.add('active');
       }
@@ -2123,7 +2057,6 @@
         modal.classList.remove('active');
       }
 
-      // Update active tools display
       function updateActiveTools() {
         activeToolsDiv.innerHTML = '';
         
@@ -2150,7 +2083,6 @@
         }
       }
 
-      // Copy table as formatted text
       function copyTableAsFormatted(tableElement) {
         const rows = tableElement.querySelectorAll('tr');
         let csv = [];
@@ -2160,7 +2092,6 @@
           const cells = row.querySelectorAll('th, td');
           cells.forEach(cell => {
             let text = cell.textContent.trim();
-            // Escape quotes and wrap in quotes if contains comma or newline
             if (text.includes(',') || text.includes('\n') || text.includes('"')) {
               text = '"' + text.replace(/"/g, '""') + '"';
             }
@@ -2175,7 +2106,6 @@
         });
       }
 
-      // Wrap tables for better mobile experience
       function wrapTables() {
         document.querySelectorAll('.bubble table').forEach(table => {
           if (!table.parentElement.classList.contains('table-wrapper')) {
@@ -2184,7 +2114,6 @@
             table.parentNode.insertBefore(wrapper, table);
             wrapper.appendChild(table);
             
-            // Add copy button
             const header = document.createElement('div');
             header.className = 'table-header';
             header.innerHTML = '<button class="copy-table-btn"><i class="far fa-copy"></i> Copy Table</button>';
@@ -2197,7 +2126,6 @@
         });
       }
 
-      // Notifications toggle
       if (notificationsToggle) {
         const savedNotifications = localStorage.getItem('notifications') === 'enabled';
         if (savedNotifications) notificationsToggle.classList.add('active');
@@ -2207,7 +2135,6 @@
         });
       }
 
-      // Save Settings
       if (saveSettingsBtn) {
         saveSettingsBtn.addEventListener('click', () => {
           const notificationsActive = notificationsToggle.classList.contains('active');
@@ -2218,7 +2145,6 @@
 
       if (cancelSettingsBtn) {
         cancelSettingsBtn.addEventListener('click', () => {
-          // Reset radio buttons to current theme
           const isLight = html.classList.contains('light-theme');
           if (themeLight) themeLight.checked = isLight;
           if (themeDark) themeDark.checked = !isLight;
@@ -2226,7 +2152,6 @@
         });
       }
 
-      // Edit message functions
       function showEditModal(messageDiv, originalText) {
         currentEditingMessage = messageDiv;
         editMessageText.value = originalText;
@@ -2247,20 +2172,6 @@
             if (newText) {
               const bubble = currentEditingMessage.querySelector('.bubble');
               bubble.textContent = newText;
-              
-              // Update in database/storage if needed
-              if (currentUser && currentChatId) {
-                // Here you would update in Firestore
-                console.log('Update message:', newText);
-              } else if (currentChatId?.startsWith('guest')) {
-                // Update in localStorage
-                const stored = localStorage.getItem(`guest_chat_${currentChatId}`);
-                if (stored) {
-                  const messages = JSON.parse(stored);
-                  // Find and update message (implementation depends on your structure)
-                  localStorage.setItem(`guest_chat_${currentChatId}`, JSON.stringify(messages));
-                }
-              }
             }
           }
           editModal.classList.remove('show');
@@ -2268,14 +2179,12 @@
         });
       }
 
-      // Auto sign in (demo)
       auth.signInWithEmailAndPassword('adityajha1104@gmail.com', 'test123').catch(e => {
         if (e.code === 'auth/user-not-found') {
           auth.createUserWithEmailAndPassword('adityajha1104@gmail.com', 'test123');
         }
       });
 
-      // Fetch user profile
       async function fetchUserProfile(uid) {
         try {
           const doc = await db.collection('users').doc(uid).get();
@@ -2312,12 +2221,10 @@
         showModal(profileModal);
       }
 
-      // Auth state change
       auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         
         if (user) {
-          // Hide guest controls for logged-in users
           const guestControls = document.getElementById('guestControls');
           if (guestControls) guestControls.style.display = 'none';
           
@@ -2347,7 +2254,6 @@
             createNewChat();
           }
         } else {
-          // Guest mode - show guest controls
           const guestControls = document.getElementById('guestControls');
           if (guestControls) guestControls.style.display = 'flex';
           
@@ -2372,7 +2278,6 @@
         }
       });
 
-      // Guest chat functions
       function saveGuestChat(chatId, messages) {
         localStorage.setItem(`guest_chat_${chatId}`, JSON.stringify(messages));
       }
@@ -2398,7 +2303,6 @@
         isFirstMessage = true;
       }
 
-      // Load chat history
       async function loadChatHistory() {
         if (!currentUser) return [];
         
@@ -2429,7 +2333,6 @@
         }
       }
 
-      // Render history
       function renderHistory(chatsArray) {
         if (!chatsArray || chatsArray.length === 0) {
           const emptyHtml = '<div class="history-item"><i class="fas fa-comment"></i> No chats yet</div>';
@@ -2463,7 +2366,6 @@
         historyList.innerHTML = html;
         mobileHistoryList.innerHTML = html;
 
-        // Add event listeners
         document.querySelectorAll('.history-item[data-chat-id]').forEach(el => {
           el.addEventListener('click', (e) => {
             if (e.target.closest('.menu-dots')) return;
@@ -2481,7 +2383,6 @@
         });
       }
 
-      // Show chat menu
       function showChatMenu(chatId, x, y) {
         activeChatIdForMenu = chatId;
         chatMenu.style.left = x + 'px';
@@ -2494,7 +2395,6 @@
           '<i class="fas fa-thumbtack"></i> Pin chat';
       }
 
-      // Close menus on outside click
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.chat-menu') && !e.target.closest('.menu-dots')) {
           chatMenu.classList.remove('show');
@@ -2507,7 +2407,6 @@
         }
       });
 
-      // Plus Menu
       if (plusMenuBtn) {
         plusMenuBtn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2538,7 +2437,6 @@
         });
       }
 
-      // Guest sign in
       if (guestSignInBtn) {
         guestSignInBtn.addEventListener('click', () => {
           window.location.href = 'https://aditya-cmd-max.github.io/signin';
@@ -2551,7 +2449,6 @@
         });
       }
 
-      // User dropdown
       if (userProfileMini) {
         userProfileMini.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2565,7 +2462,6 @@
         mobileUserProfile.addEventListener('click', (e) => {
           e.stopPropagation();
           if (currentUser) {
-            // Show dropdown on mobile
             const dropdown = document.createElement('div');
             dropdown.className = 'user-dropdown';
             dropdown.style.position = 'fixed';
@@ -2599,7 +2495,6 @@
               dropdown.remove();
             });
             
-            // Remove on outside click
             setTimeout(() => {
               document.addEventListener('click', function removeDropdown(e) {
                 if (!dropdown.contains(e.target)) {
@@ -2633,10 +2528,8 @@
         });
       }
 
-      // Modal close buttons
       if (closeProfileBtn) closeProfileBtn.addEventListener('click', () => hideModal(profileModal));
 
-      // Delete account
       if (deleteAccountBtn) {
         deleteAccountBtn.addEventListener('click', () => {
           hideModal(settingsModal);
@@ -2659,7 +2552,6 @@
         });
       }
 
-      // Logout
       if (cancelLogoutBtn) cancelLogoutBtn.addEventListener('click', () => hideModal(logoutConfirmModal));
 
       if (confirmLogoutBtn) {
@@ -2670,7 +2562,6 @@
         });
       }
 
-      // Chat menu actions
       if (menuPin) {
         menuPin.addEventListener('click', async () => {
           if (!activeChatIdForMenu || !currentUser) return;
@@ -2750,7 +2641,6 @@
         });
       }
 
-      // Filter history
       function filterHistory(term) {
         const filtered = chats.filter(c => (c.title || '').toLowerCase().includes(term.toLowerCase()));
         renderHistory(filtered);
@@ -2759,7 +2649,6 @@
       if (searchInput) searchInput.addEventListener('input', (e) => filterHistory(e.target.value));
       if (mobileSearchInput) mobileSearchInput.addEventListener('input', (e) => filterHistory(e.target.value));
 
-      // Create new chat
       async function createNewChat() {
         if (!currentUser) {
           createGuestChat();
@@ -2786,7 +2675,6 @@
         }
       }
 
-      // Load chat
       async function loadChat(chatId) {
         currentChatId = chatId;
         setChatIdInUrl(chatId);
@@ -2821,7 +2709,6 @@
         }
       }
 
-      // Show welcome screen
       function showWelcomeScreen(show) {
         if (show && chatContainer.children.length === 0) {
           const name = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Guest';
@@ -2837,12 +2724,10 @@
         }
       }
 
-      // Render message
       function renderMessage(text, sender, useMarkdown = true, save = true) {
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('message', sender);
         
-        // Only AI gets avatar
         if (sender === 'ai') {
           const avatarDiv = document.createElement('div');
           avatarDiv.classList.add('message-avatar');
@@ -2866,11 +2751,9 @@
             html = DOMPurify.sanitize(html);
             bubble.innerHTML = html;
             
-            // Apply syntax highlighting to code blocks
             bubble.querySelectorAll('pre code').forEach((block) => {
               hljs.highlightElement(block);
               
-              // Add copy button to code blocks
               const pre = block.parentElement;
               const header = document.createElement('div');
               header.className = 'code-header';
@@ -2896,7 +2779,6 @@
         contentDiv.appendChild(bubble);
         msgDiv.appendChild(contentDiv);
 
-        // Message actions
         const actionsDiv = document.createElement('div');
         actionsDiv.classList.add('message-actions');
         
@@ -2916,7 +2798,6 @@
         
         contentDiv.appendChild(actionsDiv);
 
-        // Action handlers
         const copyBtn = actionsDiv.querySelector('.copy-btn');
         if (copyBtn) {
           copyBtn.addEventListener('click', () => {
@@ -2985,13 +2866,11 @@
         }
       }
 
-      // Thinking indicator
       function setThinking(show) {
         thinkingIndicator.style.display = show ? 'flex' : 'none';
         if (show) chatContainer.scrollTop = chatContainer.scrollHeight;
       }
 
-      // File handling
       if (fileInput) {
         fileInput.addEventListener('change', (e) => {
           const file = e.target.files[0];
@@ -3012,10 +2891,8 @@
         });
       }
 
-      // Send message with stop functionality
       async function handleSend() {
         if (isWaitingForResponse) {
-          // Stop current response
           if (abortController) {
             abortController.abort();
             abortController = null;
@@ -3061,7 +2938,6 @@
         
         renderMessage(messageText, 'user', false, true);
         
-        // Disable input and change button to stop
         isWaitingForResponse = true;
         userInput.disabled = true;
         sendBtn.classList.add('stop');
@@ -3080,19 +2956,27 @@
           abortController = new AbortController();
           const timeout = setTimeout(() => abortController.abort(), 30000);
           
-          const res = await fetch(WORKER_URL, {
+          // ========== UPDATED FETCH FOR NETLIFY ==========
+          const res = await fetch(NETLIFY_FUNCTION_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'X-User-ID': currentUser?.uid || 'guest'
+            },
             body: JSON.stringify({ 
-              message: enhanced,
-              userId: currentUser?.uid || 'guest'
+              message: enhanced
+              // userId removed - Netlify function doesn't need it
             }),
             signal: abortController.signal
           });
           
           clearTimeout(timeout);
           
-          if (!res.ok) throw new Error(`Worker error: ${res.status}`);
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            throw new Error(errorData.error || `Server error: ${res.status}`);
+          }
+          
           const data = await res.json();
           const reply = data.reply || "I'm not sure how to respond to that.";
 
@@ -3100,7 +2984,6 @@
           renderMessage(reply, 'ai', true, true);
           wrapTables();
           
-          // Update chat title on first message
           if (currentUser && currentChatId && !currentChatId.startsWith('guest') && isFirstMessage) {
             const title = messageText.split(' ').slice(0, 5).join(' ') + '...';
             await db.collection('chats').doc(currentChatId).update({ title });
@@ -3112,11 +2995,11 @@
             setThinking(false);
             renderMessage('❌ Response stopped by user.', 'ai', false, true);
           } else {
+            console.error('Fetch error:', err);
             setThinking(false);
             renderMessage(`❌ Error: ${err.message}. Please try again.`, 'ai', false, true);
           }
         } finally {
-          // Re-enable input
           isWaitingForResponse = false;
           userInput.disabled = false;
           sendBtn.classList.remove('stop');
@@ -3145,7 +3028,6 @@
         });
       }
 
-      // Mobile menu
       if (openMobileMenu) {
         openMobileMenu.addEventListener('click', () => {
           mobileSidebar.classList.add('open');
@@ -3170,7 +3052,6 @@
         });
       }
 
-      // Back to bottom
       if (chatContainer) {
         chatContainer.addEventListener('scroll', () => {
           const isAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 100;
@@ -3188,11 +3069,9 @@
         });
       }
 
-      // New chat
       if (newChatBtn) newChatBtn.addEventListener('click', createNewChat);
       if (mobileNewChat) mobileNewChat.addEventListener('click', createNewChat);
 
-      // Initialize
       setTimeout(() => {
         if (!currentUser && !currentChatId) {
           const urlChatId = getChatIdFromUrl();
