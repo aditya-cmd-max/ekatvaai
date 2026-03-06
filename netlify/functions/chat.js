@@ -3,7 +3,7 @@ let buildSystemPrompt = () => "You are Ekatva AI..."; // Fallback
 
 try {
   // Try to load training data if it exists
-  const trainingModule = require('https://aditya-cmd-max.github.io/ekatvaai/chat/ai.training.data.js');
+  const trainingModule = require('./ai-training-data.js');
   buildSystemPrompt = trainingModule.buildSystemPrompt;
   console.log("✅ Training data loaded successfully");
 } catch (e) {
