@@ -1910,13 +1910,15 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      // ========== NETLIFY FUNCTION URL ==========
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const NETLIFY_FUNCTION_URL = isLocalhost 
-        ? 'http://localhost:8888/.netlify/functions/chat'
-        : '/.netlify/functions/chat';
+     // ========== NETLIFY FUNCTION URL ==========
+const NETLIFY_FUNCTION_URL = 'https://ekatvaai.netlify.app/.netlify/functions/chat';
+console.log('Using Netlify function URL:', NETLIFY_FUNCTION_URL);
 
-      console.log('Using Netlify function URL:', NETLIFY_FUNCTION_URL);
+// Test function on load
+fetch(NETLIFY_FUNCTION_URL)
+  .then(res => res.json())
+  .then(data => console.log('✅ Function test response:', data))
+  .catch(err => console.error('❌ Function test failed:', err));
 
       // Configure marked
       marked.setOptions({
