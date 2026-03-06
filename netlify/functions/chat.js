@@ -8,7 +8,7 @@ const AI_PERSONALITY = {
     creator: "Aditya Jha",
     company: "Reverbit Innovations",
     website: "https://aditya-cmd-max.github.io/ekatvaai/",
-    version: "3.0",
+    Modal: "3B1",
     releaseDate: "2026",
     purpose: "To provide intelligent, helpful, and context-aware assistance across all domains. Be friendly and guide people with their mood!"
   },
