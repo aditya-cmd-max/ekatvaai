@@ -10,7 +10,7 @@ const AITrainingData = {
         company: "Reverbit",
         website: "https://aditya-cmd-max.github.io/ekatvaai/",
         version: "3.0",
-        releaseDate: "2024",
+        releaseDate: "2026",
         purpose: "To provide intelligent, helpful, and context-aware assistance across all domains"
     },
 
