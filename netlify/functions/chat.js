@@ -1,5 +1,6 @@
 // netlify/functions/chat.js
 // Enhanced AI with personality, memory, and real-time knowledge
+// FIXED: Proper CORS headers for all responses including errors and OPTIONS
 
 // ========== CORE IDENTITY AND PERSONALITY ==========
 const AI_PERSONALITY = {
@@ -30,8 +31,6 @@ const AI_PERSONALITY = {
 };
 
 // ========== REAL-TIME KNOWLEDGE BASE ==========
-// This simulates having knowledge of current events and advanced topics
-// In production, this would connect to news APIs, Wikipedia, etc.
 const REAL_TIME_KNOWLEDGE = {
   currentEvents: {
     lastUpdated: new Date().toISOString(),
@@ -47,10 +46,7 @@ const REAL_TIME_KNOWLEDGE = {
     ]
   },
   
-  // Function to get knowledge about any topic
   getKnowledge: function(topic) {
-    // This would integrate with real APIs in production
-    // For now, return simulated knowledge
     const lowerTopic = topic.toLowerCase();
     
     if (lowerTopic.includes('ai') || lowerTopic.includes('artificial intelligence')) {
@@ -72,9 +68,7 @@ const REAL_TIME_KNOWLEDGE = {
     return null;
   },
   
-  // Always return something relevant
   getRelevantContext: function(userMessage) {
-    // Extract keywords and provide relevant knowledge
     const keywords = userMessage.toLowerCase().split(' ');
     for (const keyword of keywords) {
       if (keyword.length > 3) {
@@ -90,7 +84,6 @@ const REAL_TIME_KNOWLEDGE = {
 function buildSystemPrompt(userMessage, context = {}) {
   const { techLevel = 'beginner', mood = 'neutral', interests = [] } = context;
   
-  // Adjust tone based on mood
   let moodGuidance = '';
   if (mood === 'sad') {
     moodGuidance = 'The user seems sad. Be extra empathetic, encouraging, and offer support. Use gentle, warm language.';
@@ -102,7 +95,6 @@ function buildSystemPrompt(userMessage, context = {}) {
     moodGuidance = 'The user is in a good mood! Match their positive energy while staying helpful and professional.';
   }
   
-  // Adjust technical depth based on user level
   let techGuidance = '';
   if (techLevel === 'beginner') {
     techGuidance = 'Explain concepts simply, avoid jargon, use analogies, and be very patient. Focus on fundamentals.';
@@ -112,7 +104,6 @@ function buildSystemPrompt(userMessage, context = {}) {
     techGuidance = 'Use technical terminology freely. Discuss architecture, optimizations, and advanced patterns. Challenge the user with deeper insights.';
   }
   
-  // Personalize based on interests
   let interestGuidance = '';
   if (interests && interests.length > 0) {
     interestGuidance = `The user is interested in: ${interests.join(', ')}. Where relevant, connect your responses to these topics.`;
@@ -164,26 +155,34 @@ RESPONSE GUIDELINES:
 REMEMBER: You are not just an AI assistant - you are Ekatva, a friendly, knowledgeable companion who genuinely cares about helping users learn, grow, and solve problems. Always respond with personality and warmth!`;
 }
 
-export const handler = async (event, context) => {
-  console.log("🔵 Ekatva AI v3.0 function invoked");
-  
-  const headers = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization"
-  };
+// ========== CORS HEADERS ==========
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PUT",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+  "Access-Control-Max-Age": "86400",
+  "Content-Type": "application/json"
+};
 
-  // Handle OPTIONS preflight
+export const handler = async (event, context) => {
+  console.log("🔵 Ekatva AI v3.0 function invoked with method:", event.httpMethod);
+  
+  // Handle OPTIONS preflight request FIRST (before any other logic)
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
+    console.log("🟡 Handling OPTIONS preflight request");
+    return {
+      statusCode: 204,
+      headers: CORS_HEADERS,
+      body: ""
+    };
   }
 
   // Handle GET request (health check)
   if (event.httpMethod === "GET") {
+    console.log("🟢 Handling GET health check");
     return {
       statusCode: 200,
-      headers,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ 
         status: "ok", 
         message: `${AI_PERSONALITY.identity.name} v${AI_PERSONALITY.identity.version} is live!`,
@@ -193,22 +192,38 @@ export const handler = async (event, context) => {
     };
   }
 
-  // Only allow POST
+  // Only allow POST for chat
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method Not Allowed" }) };
+    console.log("🔴 Method not allowed:", event.httpMethod);
+    return { 
+      statusCode: 405, 
+      headers: CORS_HEADERS, 
+      body: JSON.stringify({ error: "Method Not Allowed" }) 
+    };
   }
 
   // Parse request body
   let body;
   try {
     body = JSON.parse(event.body || "{}");
+    console.log("📦 Request body parsed successfully");
   } catch (e) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: "Bad request JSON" }) };
+    console.log("🔴 Invalid JSON:", e.message);
+    return { 
+      statusCode: 400, 
+      headers: CORS_HEADERS, 
+      body: JSON.stringify({ error: "Bad request JSON" }) 
+    };
   }
 
   const userMessage = body.message;
   if (!userMessage) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: "No message provided" }) };
+    console.log("🔴 No message provided");
+    return { 
+      statusCode: 400, 
+      headers: CORS_HEADERS, 
+      body: JSON.stringify({ error: "No message provided" }) 
+    };
   }
 
   // Parse enhanced message with context
@@ -223,10 +238,12 @@ export const handler = async (event, context) => {
       messageText = parsed.text;
       messageContext = parsed.context;
       webSearchResults = parsed.webSearch;
+      console.log("📦 Enhanced message format detected");
     }
   } catch (e) {
     // Not JSON, use as plain text
     messageText = userMessage;
+    console.log("📦 Plain text message format");
   }
 
   // Extract context for personalization
@@ -242,6 +259,7 @@ export const handler = async (event, context) => {
       messageText.toLowerCase().includes('news') ||
       messageText.toLowerCase().includes('2026')) {
     realTimeKnowledge = REAL_TIME_KNOWLEDGE.getRelevantContext(messageText);
+    console.log("📚 Real-time knowledge added");
   }
 
   // Build system prompt with personality
@@ -255,6 +273,7 @@ export const handler = async (event, context) => {
   let enhancedUserMessage = messageText;
   if (webSearchResults && webSearchResults.success) {
     enhancedUserMessage = `${messageText}\n\nHere are relevant search results from the web:\n${webSearchResults.summary}\n\nPlease use this information in your response if helpful.`;
+    console.log("🌐 Web search results added");
   }
   
   // Add real-time knowledge if available
@@ -265,6 +284,7 @@ export const handler = async (event, context) => {
   // Add conversation history if available
   if (userContext.recent) {
     enhancedUserMessage = `Recent conversation:\n${userContext.recent}\n\nCurrent question: ${enhancedUserMessage}`;
+    console.log("💬 Conversation history added");
   }
 
   // API Keys from environment
@@ -275,11 +295,17 @@ export const handler = async (event, context) => {
     { key: process.env.OPENAI_API_KEY4, name: "Key 4" }
   ].filter(item => item.key);
 
+  console.log(`🔑 Found ${apiKeys.length} API keys`);
+
   if (apiKeys.length === 0) {
+    console.log("🔴 No API keys found!");
     return {
       statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: "No API keys configured" })
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ 
+        reply: "I'm having trouble connecting right now, but I'm still here for you! 😊 Could you try asking again?",
+        error: "No API keys configured" 
+      })
     };
   }
 
@@ -289,7 +315,7 @@ export const handler = async (event, context) => {
       { role: "system", content: systemPrompt },
       { role: "user", content: enhancedUserMessage }
     ],
-    temperature: 0.8, // Slightly higher for personality
+    temperature: 0.8,
     max_tokens: 2000,
     stream: false
   };
@@ -316,14 +342,22 @@ export const handler = async (event, context) => {
       body: JSON.stringify(requestBody)
     })
     .then(async res => {
+      console.log(`📡 ${name} response status:`, res.status);
       if (!res.ok) {
+        const errorText = await res.text();
+        console.log(`🔴 ${name} error:`, errorText.substring(0, 200));
         throw new Error(`${name} failed: ${res.status}`);
       }
       const data = await res.json();
+      console.log(`✅ ${name} success`);
       return { 
         reply: data.choices?.[0]?.message?.content,
         name 
       };
+    })
+    .catch(err => {
+      console.log(`🔴 ${name} error:`, err.message);
+      throw err;
     })
   );
 
@@ -334,9 +368,10 @@ export const handler = async (event, context) => {
     // Add personality signature
     const reply = result.reply + `\n\n— ${AI_PERSONALITY.identity.name} v${AI_PERSONALITY.identity.version}`;
     
+    console.log(`✅ Success from ${result.name}`);
     return {
       statusCode: 200,
-      headers,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ 
         reply: reply,
         mood: mood,
@@ -358,7 +393,7 @@ export const handler = async (event, context) => {
     
     return {
       statusCode: 502,
-      headers,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ 
         reply: fallback,
         error: "All AI gateways failed",
