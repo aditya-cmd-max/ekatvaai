@@ -1841,7 +1841,7 @@
       </div>
 
       <div id="guestPrompt" class="guest-prompt" style="display: none;">
-        <span> You're in guest mode, Sign In for better expperience! </span>
+        <span> You're in guest mode, Sign In for better experience! </span>
         <button id="signInRedirectBtn">Sign in</button>
       </div>
 
@@ -1970,15 +1970,20 @@
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-     // ========== NETLIFY FUNCTION URL ==========
-const NETLIFY_FUNCTION_URL = 'https://ekatvaai.netlify.app/.netlify/functions/chat';
-console.log('Using Netlify function URL:', NETLIFY_FUNCTION_URL);
+      // ========== OPENROUTER API CONFIGURATION ==========
+      const OPENROUTER_CONFIG = {
+        endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+        apiKey: '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',
+        siteUrl: window.location.origin, 
+        siteName: 'Ekatva AI', 
+     
+         model: 'openai/gpt-4o',                   
+      
+        
+      };
 
-// Test function on load
-fetch(NETLIFY_FUNCTION_URL)
-  .then(res => res.json())
-  .then(data => console.log('✅ Function test response:', data))
-  .catch(err => console.error('❌ Function test failed:', err));
+      console.log('OpenRouter configured with endpoint:', OPENROUTER_CONFIG.endpoint);
+      console.log('Using model:', OPENROUTER_CONFIG.model);
 
       // Configure marked
       marked.setOptions({
@@ -2953,6 +2958,71 @@ fetch(NETLIFY_FUNCTION_URL)
         });
       }
 
+      // ========== OPENROUTER API CALL FUNCTION ==========
+      async function callOpenRouterAPI(message) {
+        try {
+          console.log('📤 Sending request to OpenRouter...');
+          console.log('📦 Request message:', message);
+          
+          const response = await fetch(OPENROUTER_CONFIG.endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${OPENROUTER_CONFIG.apiKey}`,
+              'HTTP-Referer': OPENROUTER_CONFIG.siteUrl,
+              'X-Title': OPENROUTER_CONFIG.siteName
+            },
+            body: JSON.stringify({
+              model: OPENROUTER_CONFIG.model,
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are Ekatva AI, a helpful, harmless, and honest assistant powered by Reverbit. You provide accurate, detailed, and thoughtful responses.'
+                },
+                {
+                  role: 'user',
+                  content: message
+                }
+              ],
+              temperature: 0.7,
+              max_tokens: 1000,
+              top_p: 0.9,
+              frequency_penalty: 0,
+              presence_penalty: 0
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.text();
+            console.error('OpenRouter API Error:', errorData);
+            
+            // Try to parse error as JSON
+            try {
+              const errorJson = JSON.parse(errorData);
+              throw new Error(errorJson.error?.message || `OpenRouter request failed: ${response.status}`);
+            } catch {
+              throw new Error(`OpenRouter request failed: ${response.status} - ${errorData.substring(0, 100)}`);
+            }
+          }
+
+          const data = await response.json();
+          console.log('✅ OpenRouter response received:', data);
+          
+          // OpenRouter returns OpenAI-compatible response format
+          if (data.choices && data.choices[0] && data.choices[0].message) {
+            return data.choices[0].message.content;
+          } else if (data.error) {
+            throw new Error(data.error.message || 'Unknown OpenRouter error');
+          } else {
+            console.error('Unexpected OpenRouter response structure:', data);
+            return "I received a response but couldn't process it properly. Please check the console for details.";
+          }
+        } catch (error) {
+          console.error('OpenRouter API call failed:', error);
+          throw error;
+        }
+      }
+
       async function handleSend() {
         if (isWaitingForResponse) {
           if (abortController) {
@@ -2992,248 +3062,220 @@ fetch(NETLIFY_FUNCTION_URL)
       }
 
       async function processSend(messageText) {
-  userInput.value = '';
-  
-  if (chatContainer.querySelector('.welcome-screen')) {
-    chatContainer.innerHTML = '';
-  }
-  
-  renderMessage(messageText, 'user', false, true);
-  
-  isWaitingForResponse = true;
-  userInput.disabled = true;
-  sendBtn.classList.add('stop');
-  sendBtn.innerHTML = '<i class="fas fa-stop"></i>';
-  setThinking(true);
-
-  try {
-    const toolsActive = Object.entries(activeTools)
-      .filter(([,v]) => v)
-      .map(([k]) => k)
-      .join(',');
-    
-    let enhanced = messageText;
-    if (toolsActive) enhanced += `\n[Enable tools: ${toolsActive}]`;
-
-    abortController = new AbortController();
-    const timeout = setTimeout(() => abortController.abort(), 30000);
-    
-    console.log('📤 Sending request to:', NETLIFY_FUNCTION_URL);
-    console.log('📦 Request body:', { message: enhanced });
-    
-    const res = await fetch(NETLIFY_FUNCTION_URL, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
-        message: enhanced
-      }),
-      signal: abortController.signal
-    });
-    
-    clearTimeout(timeout);
-    
-    console.log('📥 Response status:', res.status);
-    
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('❌ Error response:', errorText);
-      try {
-        const errorData = JSON.parse(errorText);
-        throw new Error(errorData.error || `Server error: ${res.status}`);
-      } catch {
-        throw new Error(`Server error: ${res.status} - ${errorText.substring(0, 100)}`);
-      }
-    }
-    
-    const data = await res.json();
-    console.log('✅ Response data:', data);
-    
-    const reply = data.reply || "I'm not sure how to respond to that.";
-
-    setThinking(false);
-    
-    // TYPING ANIMATION - Create message with typing effect
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('message', 'ai');
-    
-    const avatarDiv = document.createElement('div');
-    avatarDiv.classList.add('message-avatar');
-    avatarDiv.innerHTML = `
-      <div class="ai-avatar-svg">
-        <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="AI">
-      </div>
-    `;
-    msgDiv.appendChild(avatarDiv);
-    
-    const contentDiv = document.createElement('div');
-    contentDiv.classList.add('message-content');
-    
-    const bubble = document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.id = 'typing-message-bubble';
-    contentDiv.appendChild(bubble);
-    msgDiv.appendChild(contentDiv);
-    chatContainer.appendChild(msgDiv);
-    
-    // Add cursor element
-    const cursor = document.createElement('span');
-    cursor.className = 'typing-cursor';
-    bubble.appendChild(cursor);
-    
-    // Type the message word by word
-    const words = reply.split(' ');
-    let currentText = '';
-    let wordIndex = 0;
-    
-    const typeInterval = setInterval(() => {
-      if (wordIndex < words.length) {
-        // Remove cursor temporarily
-        cursor.remove();
+        userInput.value = '';
         
-        // Add next word
-        currentText += (wordIndex === 0 ? '' : ' ') + words[wordIndex];
+        if (chatContainer.querySelector('.welcome-screen')) {
+          chatContainer.innerHTML = '';
+        }
         
-        // Parse and set HTML if markdown
+        renderMessage(messageText, 'user', false, true);
+        
+        isWaitingForResponse = true;
+        userInput.disabled = true;
+        sendBtn.classList.add('stop');
+        sendBtn.innerHTML = '<i class="fas fa-stop"></i>';
+        setThinking(true);
+
         try {
-          let html = marked.parse(currentText);
-          html = DOMPurify.sanitize(html);
-          bubble.innerHTML = html;
-        } catch (e) {
-          bubble.textContent = currentText;
-        }
-        
-        // Add cursor back
-        bubble.appendChild(cursor);
-        
-        // Scroll to bottom
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        
-        wordIndex++;
-      } else {
-        clearInterval(typeInterval);
-        cursor.remove();
-        
-        // Final render with full text and proper formatting
-        try {
-          let html = marked.parse(reply);
-          html = DOMPurify.sanitize(html);
-          bubble.innerHTML = html;
-        } catch (e) {
-          bubble.textContent = reply;
-        }
-        
-        // Add action buttons directly without helper function
-        const actionsDiv = document.createElement('div');
-        actionsDiv.classList.add('message-actions');
-        actionsDiv.innerHTML = `
-          <button class="action-icon copy-btn" title="Copy"><i class="far fa-copy"></i></button>
-          <button class="action-icon like-btn" title="Like"><i class="far fa-thumbs-up"></i></button>
-          <button class="action-icon dislike-btn" title="Dislike"><i class="far fa-thumbs-down"></i></button>
-        `;
-        contentDiv.appendChild(actionsDiv);
-
-        // Copy button functionality
-        const copyBtn = actionsDiv.querySelector('.copy-btn');
-        if (copyBtn) {
-          copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(reply);
-            const icon = copyBtn.querySelector('i');
-            icon.className = 'fas fa-check';
-            setTimeout(() => icon.className = 'far fa-copy', 2000);
-          });
-        }
-
-        // Like/Dislike buttons
-        const likeBtn = actionsDiv.querySelector('.like-btn');
-        const dislikeBtn = actionsDiv.querySelector('.dislike-btn');
-        
-        likeBtn.addEventListener('click', () => {
-          if (dislikeBtn.classList.contains('disliked')) {
-            dislikeBtn.classList.remove('disliked');
-          }
-          likeBtn.classList.toggle('liked');
-        });
-        
-        dislikeBtn.addEventListener('click', () => {
-          if (likeBtn.classList.contains('liked')) {
-            likeBtn.classList.remove('liked');
-          }
-          dislikeBtn.classList.toggle('disliked');
-        });
-        
-        // Apply syntax highlighting
-        bubble.querySelectorAll('pre code').forEach((block) => {
-          hljs.highlightElement(block);
+          const toolsActive = Object.entries(activeTools)
+            .filter(([,v]) => v)
+            .map(([k]) => k)
+            .join(',');
           
-          const pre = block.parentElement;
-          const header = document.createElement('div');
-          header.className = 'code-header';
-          header.innerHTML = '<button class="copy-code-btn"><i class="far fa-copy"></i> Copy Code</button>';
-          pre.parentNode.insertBefore(header, pre);
+          let enhanced = messageText;
+          if (toolsActive) enhanced += `\n[Enable tools: ${toolsActive}]`;
+
+          abortController = new AbortController();
+          const timeout = setTimeout(() => abortController.abort(), 30000);
           
-          header.querySelector('.copy-code-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(block.textContent);
-            const btn = header.querySelector('.copy-code-btn');
-            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => {
-              btn.innerHTML = '<i class="far fa-copy"></i> Copy Code';
-            }, 2000);
-          });
-        });
-        
-        wrapTables();
-        
-        // Save to database
-        if (currentUser && currentChatId && !currentChatId.startsWith('guest')) {
-          db.collection('chats').doc(currentChatId).collection('messages').add({
-            text: reply,
-            sender: 'ai',
-            useMarkdown: true,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            return db.collection('chats').doc(currentChatId).update({
-              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-          }).catch(e => console.error('Error saving message:', e));
-        } else if (currentChatId?.startsWith('guest')) {
-          const stored = localStorage.getItem(`guest_chat_${currentChatId}`);
-          const messages = stored ? JSON.parse(stored) : [];
-          messages.push({ text: reply, sender: 'ai', useMarkdown: true, timestamp: Date.now() });
-          localStorage.setItem(`guest_chat_${currentChatId}`, JSON.stringify(messages));
+          // Call OpenRouter API
+          const reply = await callOpenRouterAPI(enhanced);
+          
+          clearTimeout(timeout);
+          
+          console.log('✅ Response ready for display:', reply);
+
+          setThinking(false);
+          
+          // TYPING ANIMATION - Create message with typing effect
+          const msgDiv = document.createElement('div');
+          msgDiv.classList.add('message', 'ai');
+          
+          const avatarDiv = document.createElement('div');
+          avatarDiv.classList.add('message-avatar');
+          avatarDiv.innerHTML = `
+            <div class="ai-avatar-svg">
+              <img src="https://aditya-cmd-max.github.io/logo-insvg.svg" alt="AI">
+            </div>
+          `;
+          msgDiv.appendChild(avatarDiv);
+          
+          const contentDiv = document.createElement('div');
+          contentDiv.classList.add('message-content');
+          
+          const bubble = document.createElement('div');
+          bubble.classList.add('bubble');
+          bubble.id = 'typing-message-bubble';
+          contentDiv.appendChild(bubble);
+          msgDiv.appendChild(contentDiv);
+          chatContainer.appendChild(msgDiv);
+          
+          // Add cursor element
+          const cursor = document.createElement('span');
+          cursor.className = 'typing-cursor';
+          bubble.appendChild(cursor);
+          
+          // Type the message word by word
+          const words = reply.split(' ');
+          let currentText = '';
+          let wordIndex = 0;
+          
+          const typeInterval = setInterval(() => {
+            if (wordIndex < words.length) {
+              // Remove cursor temporarily
+              cursor.remove();
+              
+              // Add next word
+              currentText += (wordIndex === 0 ? '' : ' ') + words[wordIndex];
+              
+              // Parse and set HTML if markdown
+              try {
+                let html = marked.parse(currentText);
+                html = DOMPurify.sanitize(html);
+                bubble.innerHTML = html;
+              } catch (e) {
+                bubble.textContent = currentText;
+              }
+              
+              // Add cursor back
+              bubble.appendChild(cursor);
+              
+              // Scroll to bottom
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+              
+              wordIndex++;
+            } else {
+              clearInterval(typeInterval);
+              cursor.remove();
+              
+              // Final render with full text and proper formatting
+              try {
+                let html = marked.parse(reply);
+                html = DOMPurify.sanitize(html);
+                bubble.innerHTML = html;
+              } catch (e) {
+                bubble.textContent = reply;
+              }
+              
+              // Add action buttons directly without helper function
+              const actionsDiv = document.createElement('div');
+              actionsDiv.classList.add('message-actions');
+              actionsDiv.innerHTML = `
+                <button class="action-icon copy-btn" title="Copy"><i class="far fa-copy"></i></button>
+                <button class="action-icon like-btn" title="Like"><i class="far fa-thumbs-up"></i></button>
+                <button class="action-icon dislike-btn" title="Dislike"><i class="far fa-thumbs-down"></i></button>
+              `;
+              contentDiv.appendChild(actionsDiv);
+
+              // Copy button functionality
+              const copyBtn = actionsDiv.querySelector('.copy-btn');
+              if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                  navigator.clipboard.writeText(reply);
+                  const icon = copyBtn.querySelector('i');
+                  icon.className = 'fas fa-check';
+                  setTimeout(() => icon.className = 'far fa-copy', 2000);
+                });
+              }
+
+              // Like/Dislike buttons
+              const likeBtn = actionsDiv.querySelector('.like-btn');
+              const dislikeBtn = actionsDiv.querySelector('.dislike-btn');
+              
+              likeBtn.addEventListener('click', () => {
+                if (dislikeBtn.classList.contains('disliked')) {
+                  dislikeBtn.classList.remove('disliked');
+                }
+                likeBtn.classList.toggle('liked');
+              });
+              
+              dislikeBtn.addEventListener('click', () => {
+                if (likeBtn.classList.contains('liked')) {
+                  likeBtn.classList.remove('liked');
+                }
+                dislikeBtn.classList.toggle('disliked');
+              });
+              
+              // Apply syntax highlighting
+              bubble.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+                
+                const pre = block.parentElement;
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                header.innerHTML = '<button class="copy-code-btn"><i class="far fa-copy"></i> Copy Code</button>';
+                pre.parentNode.insertBefore(header, pre);
+                
+                header.querySelector('.copy-code-btn').addEventListener('click', () => {
+                  navigator.clipboard.writeText(block.textContent);
+                  const btn = header.querySelector('.copy-code-btn');
+                  btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                  setTimeout(() => {
+                    btn.innerHTML = '<i class="far fa-copy"></i> Copy Code';
+                  }, 2000);
+                });
+              });
+              
+              wrapTables();
+              
+              // Save to database
+              if (currentUser && currentChatId && !currentChatId.startsWith('guest')) {
+                db.collection('chats').doc(currentChatId).collection('messages').add({
+                  text: reply,
+                  sender: 'ai',
+                  useMarkdown: true,
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                  return db.collection('chats').doc(currentChatId).update({
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                  });
+                }).catch(e => console.error('Error saving message:', e));
+              } else if (currentChatId?.startsWith('guest')) {
+                const stored = localStorage.getItem(`guest_chat_${currentChatId}`);
+                const messages = stored ? JSON.parse(stored) : [];
+                messages.push({ text: reply, sender: 'ai', useMarkdown: true, timestamp: Date.now() });
+                localStorage.setItem(`guest_chat_${currentChatId}`, JSON.stringify(messages));
+              }
+            }
+          }, 40); // 40ms between words for smooth typing
+          
+          if (currentUser && currentChatId && !currentChatId.startsWith('guest') && isFirstMessage) {
+            const title = messageText.split(' ').slice(0, 5).join(' ') + '...';
+            await db.collection('chats').doc(currentChatId).update({ title });
+            isFirstMessage = false;
+            await loadChatHistory();
+          }
+        } catch (err) {
+          console.error('❌ Error details:', err);
+          if (err.name === 'AbortError') {
+            setThinking(false);
+            renderMessage('❌ Response stopped by user.', 'ai', false, true);
+          } else {
+            setThinking(false);
+            renderMessage(`❌ Error: ${err.message}. Please try again.`, 'ai', false, true);
+          }
+        } finally {
+          isWaitingForResponse = false;
+          userInput.disabled = false;
+          sendBtn.classList.remove('stop');
+          sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+          abortController = null;
+          selectedFile = null;
+          fileInput.value = '';
+          filePreview.style.display = 'none';
+          userInput.focus();
         }
       }
-    }, 40); // 40ms between words for smooth typing
-    
-    if (currentUser && currentChatId && !currentChatId.startsWith('guest') && isFirstMessage) {
-      const title = messageText.split(' ').slice(0, 5).join(' ') + '...';
-      await db.collection('chats').doc(currentChatId).update({ title });
-      isFirstMessage = false;
-      await loadChatHistory();
-    }
-  } catch (err) {
-    console.error('❌ Fetch error details:', err);
-    if (err.name === 'AbortError') {
-      setThinking(false);
-      renderMessage('❌ Response stopped by user.', 'ai', false, true);
-    } else {
-      setThinking(false);
-      renderMessage(`❌ Error: ${err.message}. Please try again.`, 'ai', false, true);
-    }
-  } finally {
-    isWaitingForResponse = false;
-    userInput.disabled = false;
-    sendBtn.classList.remove('stop');
-    sendBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    abortController = null;
-    selectedFile = null;
-    fileInput.value = '';
-    filePreview.style.display = 'none';
-    userInput.focus();
-  }
-}
 
       if (sendBtn) {
         sendBtn.addEventListener('click', (e) => {
